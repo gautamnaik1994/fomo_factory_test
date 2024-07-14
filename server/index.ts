@@ -1,11 +1,16 @@
 import express, { Request, Response } from 'express';
 import dotenv from "dotenv";
 dotenv.config();
-import { connectToDatabase } from './db/conn';
-import test from './routes/test';
+import {startPriceDataIngestion} from './src/data_ingestion/priceData';
+import { connectToDatabase, initializeCollections } from './src/db/conn';
+import test from './src/routes/test';
+
+connectToDatabase().then(() => {
+  initializeCollections();
+}).catch(console.error);
 
 
-connectToDatabase().catch(console.error);
+startPriceDataIngestion();
 
 const app = express();
 const port = process.env.PORT || 8080;
