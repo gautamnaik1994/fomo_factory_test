@@ -1,11 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
+import socketSlice from '@/reducers/socketSlice'
 // ...
 
 export const store = configureStore({
   reducer: {
-    // posts: postsReducer,
-    // comments: commentsReducer,
-    // users: usersReducer
+    socket: socketSlice,
   }
 })
 

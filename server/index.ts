@@ -3,25 +3,17 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 
 
+
 import dotenv from "dotenv";
 dotenv.config();
 import { startPriceDataIngestion } from './src/data_ingestion/priceData';
 import { connectToDatabase, initializeCollections } from './src/db/conn';
+import handleSocketConnection from './src/socket_server/io';
 import test from './src/routes/test';
 
 // connectToDatabase().then(() => {
 //   initializeCollections();
 // }).catch(console.error);
-
-function getRandomPrice(symbol: string) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const price = Math.random() * 100;
-      resolve({ symbol, price });
-    }, 1000);
-  });
-}
-
 
 // startPriceDataIngestion();
 
@@ -33,39 +25,7 @@ const io = new Server(httpServer, {
   }
 });
 
-io.on("connection", (socket) => {
-  console.log("A user connected", io.engine.clientsCount);
-  const subscriptions = new Map();
-  socket.on('subscribeToTicker', (symbol) => {
-    console.log(`User subscribed to ticker: ${symbol}`);
-
-    if (subscriptions.has(symbol)) {
-      return;
-    }
-
-    const intervalId = setInterval(async () => {
-      const priceData = { symbol, price: Math.random() * 100 };
-      console.log(`Emitting price update for ${symbol}: ${priceData.price}`);
-      socket.emit('priceUpdate', priceData);
-    }, 1000);
-
-    subscriptions.set(symbol, intervalId);
-
-    socket.on('disconnect', () => {
-      subscriptions.forEach((intervalId) => clearInterval(intervalId));
-      console.log('user disconnected');
-    });
-  });
-  socket.on('unsubscribe', (symbol) => {
-    if (subscriptions.has(symbol)) {
-      clearInterval(subscriptions.get(symbol));
-      subscriptions.delete(symbol);
-    }
-  })
-
-});
-
-
+handleSocketConnection(io);
 
 const port = process.env.PORT || 8080;
 
