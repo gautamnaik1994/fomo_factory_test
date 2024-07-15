@@ -1,23 +1,37 @@
 import React from 'react';
 import { useAppSelector } from '@/store/hooks';
 
-type PriceDataProps = {
-    symbol: string;
-};
+type PriceData = {
+    timestamp: string;
+    price: number;
+}[]
 
 
-const PriceData = ({ symbol }: PriceDataProps): React.ReactNode => {
+const PriceData = (): React.ReactNode => {
     
-    const priceData = useAppSelector((state) => state.socket.priceData);
+    const {priceData, value}: { priceData: PriceData, value: string } = useAppSelector((state) => state.socket);
 
     return (
         <div>
-            <h1>{ symbol }</h1>
-            {priceData.map((data) => (
-                <div key={data.date}>
-                    <span>{data.date} : </span> <span>{data.price}</span>
-                </div>
-            ))}
+            <h1>{value}</h1>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {priceData.map((data) => (
+                        <tr key={data.timestamp}>
+                            <td>{data.timestamp}</td>
+                            <td>{data.price}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+           
         </div>
     );
 }

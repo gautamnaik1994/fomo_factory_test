@@ -11,11 +11,11 @@ import { connectToDatabase, initializeCollections } from './src/db/conn';
 import handleSocketConnection from './src/socket_server/io';
 import test from './src/routes/test';
 
-// connectToDatabase().then(() => {
-//   initializeCollections();
-// }).catch(console.error);
+connectToDatabase().then(() => {
+  initializeCollections();
+}).catch(console.error);
 
-// startPriceDataIngestion();
+startPriceDataIngestion();
 
 const app = express();
 const httpServer = createServer(app);

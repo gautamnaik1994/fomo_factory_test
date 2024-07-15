@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import PriceData from "@/components/PriceData";
 import SymbolSelector from "@/components/SymbolSelector";
-import { connect, disconnect } from '@/reducers/socketSlice';
+import { connectSocket, disconnect } from '@/reducers/socketSlice';
 import { useEffect } from "react";
 import { useAppDispatch } from "@/store/hooks";
 
@@ -14,8 +14,7 @@ export default function Home() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(connect({}));
-
+    dispatch(connectSocket());
     return () => {
       dispatch(disconnect());
     };
@@ -32,7 +31,7 @@ export default function Home() {
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <SymbolSelector/>
-        <PriceData symbol="GOOG"/>
+        <PriceData />
       </main>
     </>
   );

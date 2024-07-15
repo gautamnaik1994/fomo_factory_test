@@ -24,7 +24,7 @@ async function getCoinData() {
                 "x-api-key": process.env.COIN_API_KEY || "",
             }),
             body: JSON.stringify({
-                codes: ["ETH", "BTC", "GRIN"],
+                codes: ["ETH", "BTC", "GRIN", "XRP", "LTC"],
                 currency: "USD",
                 sort: "rank",
                 order: "ascending",
@@ -57,8 +57,9 @@ async function getCoinData() {
 }
 
 function startPriceDataIngestion() {
+    const ingestionRateSec = process.env.DATA_INGESTION_INTERVAL_SECONDS || 60;
     getCoinData();
-    cron.schedule('* * * * *', async () => {
+    cron.schedule(`*/${ingestionRateSec} * * * * *`, async () => {
         console.log('running a task every min');
         getCoinData();
     });

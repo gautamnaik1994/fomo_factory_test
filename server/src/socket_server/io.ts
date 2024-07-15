@@ -1,4 +1,5 @@
 import { Server, Socket } from "socket.io";
+import { stockPriceCollection } from "../db/conn";
 
 interface Subscriptions {
   [key: string]: NodeJS.Timeout;
@@ -9,7 +10,7 @@ const handleSocketConnection = (io: Server) => {
     console.log("A user connected", io.engine.clientsCount);
     const subscriptions: Subscriptions = {};
 
-    socket.on('subscribeToTicker', (symbol: string) => {
+    socket.on('subscribe', (symbol: string) => {
       console.log(`User subscribed to ticker: ${symbol}`);
 
       if (subscriptions[symbol]) {
@@ -17,10 +18,35 @@ const handleSocketConnection = (io: Server) => {
       }
 
       const intervalId = setInterval(async () => {
-        const priceData = { date:new Date(), symbol, price: Math.random() * 100 };
-        console.log(`Emitting price update for ${symbol}: ${priceData.price}`);
+        // const priceData = [{ timestamp:new Date(), symbol, price: Math.random() * 100 }];
+        const priceData = await stockPriceCollection?.aggregate(
+          [
+            {
+              "$match": {
+                "metadata.symbol": symbol,
+              }
+            },
+            {
+              "$sort": {
+                "timestamp": -1
+              }
+            },
+            {
+              "$limit": 1
+            },
+            {
+              "$project": {
+                "_id": 0,
+                "timestamp": 1,
+                "price": 1
+              }
+            
+            }
+          ]).toArray();
+
+        console.log(`Emitting price update for ${JSON.stringify(priceData)}`);
         socket.emit('priceUpdate', priceData);
-      }, 1000);
+      }, 10000);
 
       subscriptions[symbol] = intervalId;
     });

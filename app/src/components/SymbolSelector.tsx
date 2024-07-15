@@ -1,9 +1,14 @@
-import { useSocket } from '@/context/socketContext';
 import React, { useState, useEffect } from 'react';
+import { useAppDispatch } from '@/store/hooks';
+import { subscribe } from '@/reducers/socketSlice';
+
+const symbols=["ETH", "BTC", "GRIN", "XRP", "LTC"]
 
 const SymbolSelector: React.FC = () => {
-    const [symbol, setSymbol] = useState('BTC');
     const [open, setOpen] = useState(false);
+
+    const dispatch = useAppDispatch();
+
 
     return (
         <>
@@ -11,13 +16,12 @@ const SymbolSelector: React.FC = () => {
             {
                 open && (
                     <div>
-                        <button onClick={() => setSymbol('BTC')}>BTC</button>
-                        <button onClick={() => setSymbol('ETH')}>ETH</button>
-                        <button onClick={() => setSymbol('DOGE')}>DOGE</button>
+                        {symbols.map((symbol) => (
+                            <button key={symbol} onClick={() => dispatch(subscribe(symbol))}>{symbol}</button>
+                        ))}
                     </div>
                 )
             }
-
 
         </>
     );
