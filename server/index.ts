@@ -9,7 +9,7 @@ dotenv.config();
 import { startPriceDataIngestion } from './src/data_ingestion/priceData';
 import { connectToDatabase, initializeCollections } from './src/db/conn';
 import handleSocketConnection from './src/socket_server/io';
-import test from './src/routes/test';
+import price from './src/routes/price';
 
 connectToDatabase().then(() => {
   initializeCollections();
@@ -30,7 +30,7 @@ handleSocketConnection(io);
 const port = process.env.PORT || 8080;
 
 app.use(express.json());
-app.use('/test', test);
+app.use('/price', price);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello, TypeScript Express!');

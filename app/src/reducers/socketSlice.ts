@@ -35,10 +35,29 @@ export const connectSocket = createAsyncThunk(
   }
 );
 
+function formatDate(utcTimeString: string): string {
+const utcDate: Date = new Date(utcTimeString);
+const dateOptions: Intl.DateTimeFormatOptions = {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric'
+};
+const formattedDate: string = utcDate.toLocaleDateString(undefined, dateOptions);
+const timeOptions: Intl.DateTimeFormatOptions = {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false
+};
+const formattedTime: string = utcDate.toLocaleTimeString(undefined, timeOptions);
+const formattedDateTime: string = `${formattedDate} ${formattedTime}`;
+    return formattedDateTime;
+}
+
 let priceQueue = new Queue(5);
 
 type Payload = {
-    timestamp: Date,
+    timestamp: string,
     price: number,
 }[]
 
@@ -50,7 +69,12 @@ export const socketSlice = createSlice({
     },
     reducers: {
         updatePriceData: (state, action: { payload: Payload }) => {
-            priceQueue.enqueue(action.payload[0]);
+            console.log('updatePriceData', action.payload);
+            action.payload.forEach((item) => {
+                item.timestamp = formatDate(item.timestamp)
+                item.price = parseFloat(item.price.toFixed(5));
+                priceQueue.enqueue(item);
+            });
             state.priceData = priceQueue.toArray() as never[];
         },
         disconnect: (state) => { 
@@ -59,14 +83,14 @@ export const socketSlice = createSlice({
         subscribe: (state, action) => {
             socket?.emit('unsubscribe', state.value);
             state.value = action.payload;
+            socket?.emit('subscribe', action.payload);
             priceQueue.clear();
             state.priceData = [];
-            socket?.emit('subscribe', action.payload);
         },
         unsubscribe: (state, action) => {
+          socket?.emit('unsubscribe', action.payload);
             priceQueue.clear();
             state.priceData = [];
-            socket?.emit('unsubscribe', action.payload);
             state.value = '';
         }
     },

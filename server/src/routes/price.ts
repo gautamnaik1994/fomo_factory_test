@@ -3,13 +3,16 @@ import {stockPriceCollection} from "../db/conn";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  // const tasks = await (db ? db.collection("stock_prices").find({}).limit(10).toArray() : []);
+router.get("/:symbol", async (req, res) => {
+  
+  const symbol = req.params.symbol;
+  const limit = req.query.limit ? parseInt(req.query.limit as string) : 1;
+
   const priceData = await stockPriceCollection?.aggregate(
     [
       {
         "$match": {
-          "metadata.symbol": "BTC",
+          "metadata.symbol": symbol,
         }
       },
       {
@@ -18,20 +21,22 @@ router.get("/", async (req, res) => {
         }
       },
       {
-        "$limit": 1
+        "$limit": limit
       },
       {
         "$project": {
           "_id": 0,
           "timestamp": 1,
-          "price": 1
+          "price": 1,
+          "symbol": "$metadata.symbol"
         }
       
       }
     ]).toArray();
-
-  console.log(`Emitting price update for ${JSON.stringify(priceData)}`);
-  res.json(priceData);
+  res.json({
+    data: priceData,
+    message: "Price data fetched successfully",
+  });
 });
 
 export default router;

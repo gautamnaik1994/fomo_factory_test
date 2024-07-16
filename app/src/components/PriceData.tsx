@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use } from 'react';
 import { useAppSelector } from '@/store/hooks';
 
 type PriceData = {
@@ -9,24 +9,25 @@ type PriceData = {
 
 const PriceData = (): React.ReactNode => {
     
-    const {priceData, value}: { priceData: PriceData, value: string } = useAppSelector((state) => state.socket);
+    const { priceData, value }: { priceData: PriceData, value: string } = useAppSelector((state) => state.socket);
+    
 
     return (
-        <div>
+        <div className='price-data'>
             <h1>{value}</h1>
             
             <table>
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Price</th>
+                        <th align='left'>Date</th>
+                        <th align='center'>Price</th>
                     </tr>
                 </thead>
                 <tbody>
                     {priceData.map((data) => (
                         <tr key={data.timestamp}>
                             <td>{data.timestamp}</td>
-                            <td>{data.price}</td>
+                            <td align='center'>{data.price}</td>
                         </tr>
                     ))}
                 </tbody>
