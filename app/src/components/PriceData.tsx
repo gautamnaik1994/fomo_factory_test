@@ -9,11 +9,11 @@ type PriceData = {
 
 const PriceData = (): React.ReactNode => {
     
-    const { priceData, value }: { priceData: PriceData, value: string } = useAppSelector((state) => state.socket);
+    const { priceData, value, updateId }: { priceData: PriceData, value: string , updateId: number} = useAppSelector((state) => state.socket);
     
 
     return (
-        <div className='price-data'>
+        <div className={`price-data updated-${updateId}`}>
             <h1>{value}</h1>
             
             <table>

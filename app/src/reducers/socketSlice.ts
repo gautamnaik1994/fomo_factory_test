@@ -23,85 +23,100 @@ export const connectSocket = createAsyncThunk(
     });
 
     socket.on('connect', () => {
-        console.log('connected in thunk');
-        //@ts-expect-error
-        dispatch(subscribe(getState().socket.value));
+      console.log('connected');
+      //@ts-expect-error
+      dispatch(subscribe(getState().socket.value));
+      dispatch(socketDisconnected(false));
     });
 
-      socket.on('priceUpdate', (data) => {
-        console.log('priceUpdate', data);
-        dispatch(updatePriceData(data));
+    socket.on('disconnect', () => { 
+      console.log('disconnected');
+      dispatch(socketDisconnected(true));
+    });
+
+    socket.on('priceUpdate', (data) => {
+      console.log('priceUpdate', data);
+      dispatch(updatePriceData(data));
+      dispatch(animate());
     });
   }
 );
 
 function formatDate(utcTimeString: string): string {
-const utcDate: Date = new Date(utcTimeString);
-const dateOptions: Intl.DateTimeFormatOptions = {
-  day: '2-digit',
-  month: 'long',
-  year: 'numeric'
-};
-const formattedDate: string = utcDate.toLocaleDateString(undefined, dateOptions);
-const timeOptions: Intl.DateTimeFormatOptions = {
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  hour12: false
-};
-const formattedTime: string = utcDate.toLocaleTimeString(undefined, timeOptions);
-const formattedDateTime: string = `${formattedDate} ${formattedTime}`;
-    return formattedDateTime;
+  const utcDate: Date = new Date(utcTimeString);
+  const dateOptions: Intl.DateTimeFormatOptions = {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  };
+  const formattedDate: string = utcDate.toLocaleDateString(undefined, dateOptions);
+  const timeOptions: Intl.DateTimeFormatOptions = {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  };
+  const formattedTime: string = utcDate.toLocaleTimeString(undefined, timeOptions);
+  const formattedDateTime: string = `${formattedDate} ${formattedTime}`;
+  return formattedDateTime;
 }
 
 let priceQueue = new Queue(5);
 
 type Payload = {
-    timestamp: string,
-    price: number,
+  timestamp: string,
+  price: number,
 }[]
 
 export const socketSlice = createSlice({
-    name: 'socket',
-    initialState: {
-        value: "BTC",
-        priceData:[]
+  name: 'socket',
+  initialState: {
+    value: "BTC",
+    priceData: [],
+    updateId: 0,
+    socketDisconnected: false
+  },
+  reducers: {
+    updatePriceData: (state, action: { payload: Payload }) => {
+      console.log('updatePriceData', action.payload);
+      action.payload.forEach((item) => {
+        item.timestamp = formatDate(item.timestamp)
+        item.price = parseFloat(item.price.toFixed(5));
+        priceQueue.enqueue(item);
+      });
+      state.priceData = priceQueue.toArray() as never[];
     },
-    reducers: {
-        updatePriceData: (state, action: { payload: Payload }) => {
-            console.log('updatePriceData', action.payload);
-            action.payload.forEach((item) => {
-                item.timestamp = formatDate(item.timestamp)
-                item.price = parseFloat(item.price.toFixed(5));
-                priceQueue.enqueue(item);
-            });
-            state.priceData = priceQueue.toArray() as never[];
-        },
-        disconnect: (state) => { 
-            socket?.disconnect();
-        },
-        subscribe: (state, action) => {
-            socket?.emit('unsubscribe', state.value);
-            state.value = action.payload;
-            socket?.emit('subscribe', action.payload);
-            priceQueue.clear();
-            state.priceData = [];
-        },
-        unsubscribe: (state, action) => {
-          socket?.emit('unsubscribe', action.payload);
-            priceQueue.clear();
-            state.priceData = [];
-            state.value = '';
-        }
+    disconnect: (state) => {
+      socket?.disconnect();
     },
-    extraReducers: (builder, ) => {
-        builder.addCase(connectSocket.fulfilled, (state, action) => {
-            console.log('connected');
-            
-        });
+    subscribe: (state, action) => {
+      socket?.emit('unsubscribe', state.value);
+      state.value = action.payload;
+      socket?.emit('subscribe', action.payload);
+      priceQueue.clear();
+      state.priceData = [];
+    },
+    unsubscribe: (state, action) => {
+      socket?.emit('unsubscribe', action.payload);
+      priceQueue.clear();
+      state.priceData = [];
+      state.value = '';
+    },
+    socketDisconnected: (state, action) => { 
+     state.socketDisconnected = action.payload;
+    },
+    animate: (state) => { 
+      state.updateId === 0 ? state.updateId = 1 : state.updateId = 0;
     }
+
+  },
+  extraReducers: (builder,) => {
+    builder.addCase(connectSocket.fulfilled, (state, action) => {
+      console.log('connected');
+    });
+  }
 })
 
-export const { updatePriceData, subscribe, unsubscribe , disconnect} = socketSlice.actions
+export const { updatePriceData, subscribe, unsubscribe, disconnect, animate, socketDisconnected } = socketSlice.actions
 
 export default socketSlice.reducer

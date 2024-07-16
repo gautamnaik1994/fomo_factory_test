@@ -2,6 +2,7 @@ import Head from "next/head";
 import { Inter } from "next/font/google";
 import PriceData from "@/components/PriceData";
 import SymbolSelector from "@/components/SymbolSelector";
+import SocketStatus from "@/components/SocketStatus";
 import { connectSocket, disconnect } from '@/reducers/socketSlice';
 import { useEffect } from "react";
 import { useAppDispatch } from "@/store/hooks";
@@ -30,6 +31,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={inter.className}>
+        <SocketStatus/>
         <SymbolSelector/>
         <PriceData />
       </main>
