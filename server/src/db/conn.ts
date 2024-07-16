@@ -1,6 +1,6 @@
 import { MongoClient, Db, CreateCollectionOptions, Collection } from "mongodb";
 
-const connectionString: string = process.env.ATLAS_URI || "mongodb://localhost:27017";
+const connectionString: string = process.env.MONGO_DB_URL || "mongodb://localhost:27017";
 const client: MongoClient = new MongoClient(connectionString);
 
 let db: Db | null = null;

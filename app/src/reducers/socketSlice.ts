@@ -2,10 +2,10 @@ import { createSlice } from '@reduxjs/toolkit'
 import { io, Socket } from 'socket.io-client';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import Queue from '@/utils/Queue';
-import { RootState } from '@reduxjs/toolkit/query';
+import { formatDate } from '@/utils';
 
 let socket: Socket | null = null;
-
+let priceQueue = new Queue(20);
 
 export const connectSocket = createAsyncThunk(
   'socket/connect',
@@ -35,33 +35,12 @@ export const connectSocket = createAsyncThunk(
     });
 
     socket.on('priceUpdate', (data) => {
-      console.log('priceUpdate', data);
       dispatch(updatePriceData(data));
       dispatch(animate());
     });
   }
 );
 
-function formatDate(utcTimeString: string): string {
-  const utcDate: Date = new Date(utcTimeString);
-  const dateOptions: Intl.DateTimeFormatOptions = {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  };
-  const formattedDate: string = utcDate.toLocaleDateString(undefined, dateOptions);
-  const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  };
-  const formattedTime: string = utcDate.toLocaleTimeString(undefined, timeOptions);
-  const formattedDateTime: string = `${formattedDate} ${formattedTime}`;
-  return formattedDateTime;
-}
-
-let priceQueue = new Queue(5);
 
 type Payload = {
   timestamp: string,
@@ -78,7 +57,6 @@ export const socketSlice = createSlice({
   },
   reducers: {
     updatePriceData: (state, action: { payload: Payload }) => {
-      console.log('updatePriceData', action.payload);
       action.payload.forEach((item) => {
         item.timestamp = formatDate(item.timestamp)
         item.price = parseFloat(item.price.toFixed(5));

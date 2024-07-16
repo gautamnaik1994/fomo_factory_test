@@ -25,7 +25,6 @@ export default function Home() {
     <>
       <Head>
         <title>Fomo Factory</title>
-        <link href="https://unpkg.com/sanitize.css" rel="stylesheet"/>
         <meta name="description" content="Fomo Factory" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />

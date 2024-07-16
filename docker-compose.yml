@@ -1,0 +1,34 @@
+version: '3'
+services:
+  mongo_db:
+    command: mongod --quiet
+    image: mongo:latest
+    container_name: database_container
+    restart: always
+    volumes:
+      - mongo_db:/data/db
+    ports:
+      - 27017:27017
+  server:
+    build: ./server/.
+    ports:
+      - 8080:8080
+    environment:
+      MONGO_DB_URL: mongodb://mongo_db:27017/fomo_factory
+      PORT: 8080
+      DATABASE_NAME: fomo_factory
+      COIN_API_KEY: 27951baf-5f13-4293-9299-adc6b66a6016
+      DATA_INGESTION_INTERVAL_SECONDS: 10
+    depends_on:
+      - mongo_db
+  web:
+    build: ./app/.
+    ports:
+      - 3000:3000
+    environment:
+      NEXT_PUBLIC_API_URL: http://server:8080
+    depends_on:
+      - app
+    
+volumes:
+  mongo_db: {}

@@ -6,12 +6,10 @@ type PriceData = {
     price: number;
 }[]
 
-
 const PriceData = (): React.ReactNode => {
     
     const { priceData, value, updateId }: { priceData: PriceData, value: string , updateId: number} = useAppSelector((state) => state.socket);
     
-
     return (
         <div className={`price-data updated-${updateId}`}>
             <h1>{value}</h1>

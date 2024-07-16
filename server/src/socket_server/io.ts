@@ -5,32 +5,30 @@ interface Subscriptions {
   [key: string]: NodeJS.Timeout;
 }
 
-async function fetchPriceData(symbol: string, limit = 1) { 
-  const priceData = await stockPriceCollection?.aggregate(
-    [
-      {
-        "$match": {
-          "metadata.symbol": symbol,
-        }
-      },
-      {
-        "$sort": {
-          "timestamp": -1
-        }
-      },
-      {
-        "$limit": limit
-      },
-      {
-        "$project": {
-          "_id": 0,
-          "timestamp": 1,
-          "price": 1,
-          "symbol": "$metadata.symbol"
-        }
-      
+async function fetchPriceData(symbol: string, limit = 1) {
+  const priceData = await stockPriceCollection?.aggregate([
+    {
+      "$match": {
+        "metadata.symbol": symbol,
       }
-    ]).toArray();
+    },
+    {
+      "$sort": {
+        "timestamp": -1
+      }
+    },
+    {
+      "$limit": limit
+    },
+    {
+      "$project": {
+        "_id": 0,
+        "timestamp": 1,
+        "price": 1,
+        "symbol": "$metadata.symbol"
+      }
+    }
+  ]).toArray();
 
   console.log(`Emitting price update for ${symbol} :  ${JSON.stringify(priceData)}`);
   return priceData;
@@ -48,15 +46,16 @@ const handleSocketConnection = (io: Server) => {
         return;
       }
 
-      socket.emit('priceUpdate', await fetchPriceData(symbol, 5));
+      socket.emit('priceUpdate', await fetchPriceData(symbol, 20));
       const intervalId = setInterval(async () => {
         // const priceData = [{ timestamp:new Date(), symbol, price: Math.random() * 100 }];
         socket.emit('priceUpdate', await fetchPriceData(symbol));
-      }, process.env.DATA_INGESTION_INTERVAL_SECONDS? parseInt(process.env.DATA_INGESTION_INTERVAL_SECONDS) * 1000 + 5000 : 15000);
+      }, process.env.DATA_INGESTION_INTERVAL_SECONDS ? parseInt(process.env.DATA_INGESTION_INTERVAL_SECONDS) * 1000 + 5000 : 15000);
       subscriptions[symbol] = intervalId;
     });
 
     socket.on('unsubscribe', (symbol: string) => {
+      console.log(`User unsubscribed from ticker: ${symbol}`);
       if (subscriptions[symbol]) {
         clearInterval(subscriptions[symbol]);
         delete subscriptions[symbol];
@@ -65,7 +64,7 @@ const handleSocketConnection = (io: Server) => {
 
     socket.on('disconnect', () => {
       Object.values(subscriptions).forEach(clearInterval);
-      console.log('user disconnected');
+      console.log('User disconnected');
     });
   });
 };

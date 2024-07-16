@@ -47,6 +47,7 @@ async function getCoinData() {
         });
         // console.log(timeSeriesArray);
         stockPriceCollection?.insertMany(timeSeriesArray);
+        console.log('Data ingested');
 
     }
     catch (e) { 
@@ -60,7 +61,6 @@ function startPriceDataIngestion() {
     const ingestionRateSec = process.env.DATA_INGESTION_INTERVAL_SECONDS || 60;
     getCoinData();
     cron.schedule(`*/${ingestionRateSec} * * * * *`, async () => {
-        console.log('running a task every min');
         getCoinData();
     });
 }
