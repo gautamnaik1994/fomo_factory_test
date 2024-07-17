@@ -10,6 +10,8 @@ If Docker is installed on your system, then all you need to do is run the follow
 docker compose up
 ```
 
+Then open `http://localhost:3000/` on your browser
+
 If you have made any changes in the source code then you will need to rebuild using the following command
 
 ```bash
@@ -45,6 +47,7 @@ mongodb+srv://<username>:<password>@<clusterName>.abcdef.mongodb.net/?retryWrite
 - Navigate to the app folder.
 - Run `npm install`
 - Start app in development mode by running `npm run dev`.
+- Open <http://localhost:3000/> on browser
 
 ## Architecture
 
