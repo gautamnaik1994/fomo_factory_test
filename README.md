@@ -26,6 +26,8 @@ docker compose up --build
 - If that is not possible then you need to use the online version of Mongodb, More info here [MongoDB online](https://www.mongodb.com/resources/products/platform/online).  
 - Generate a database connection string and paste it into the `.env` file.
 
+> If you are using online version you will need to add your IP address in the "Network Access" section of the MongoDB dashboard. If this step is not done, you will get error.
+
 Example string
 
 ```
@@ -78,7 +80,7 @@ Used for sending data to frontend apps in real time.
 ### Frontend
 
 NextJS along with Socket IO client and Redux was used. Upon launching the app, the socket is connected and price events are subscribed to.  
-Note that I could not save the redux store into local storage because of syncing-related issue with real-time data.
+*Note that I could not save the redux store into local storage because of syncing-related issue with real-time data.*
 
 ## Video
 
