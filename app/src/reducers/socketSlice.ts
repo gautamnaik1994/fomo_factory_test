@@ -35,6 +35,7 @@ export const connectSocket = createAsyncThunk(
     });
 
     socket.on('priceUpdate', (data) => {
+      console.log('priceUpdate', data);
       dispatch(updatePriceData(data));
       dispatch(animate());
     });
@@ -52,11 +53,15 @@ export const socketSlice = createSlice({
   initialState: {
     value: "BTC",
     priceData: [],
-    updateId: 0,
-    socketDisconnected: false
+    updateId: 0, // Used to trigger animation on data update
+    socketDisconnected: true
   },
   reducers: {
     updatePriceData: (state, action: { payload: Payload }) => {
+
+      if (!Array.isArray(action.payload)) {
+        return;
+      }
       action.payload.forEach((item) => {
         item.timestamp = formatDate(item.timestamp)
         item.price = parseFloat(item.price.toFixed(5));

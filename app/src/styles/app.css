@@ -179,10 +179,12 @@ button {
   margin-top: 25px;
 }
 
-.price-data h1 {
+.symbol-info{
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 20px;
+  align-items: center;
 }
-
 
 .updated-0 tbody tr:first-child,
 .updated-1 tbody tr:first-child  {

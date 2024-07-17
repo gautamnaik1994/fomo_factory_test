@@ -6,6 +6,7 @@ interface Subscriptions {
 }
 
 async function fetchPriceData(symbol: string, limit = 1) {
+  //following query fetches the latest price data for the given symbol
   const priceData = await stockPriceCollection?.aggregate([
     {
       "$match": {
@@ -30,6 +31,11 @@ async function fetchPriceData(symbol: string, limit = 1) {
     }
   ]).toArray();
 
+  if (!priceData) {
+    console.log(`No price data found for ${symbol}.Check if database is connected. Returning null`);
+    return null
+  }
+
   console.log(`Emitting price update for ${symbol} :  ${JSON.stringify(priceData)}`);
   return priceData;
 }
@@ -46,10 +52,13 @@ const handleSocketConnection = (io: Server) => {
         return;
       }
 
+      //First call fetches 20 items and sends it to the client
       socket.emit('priceUpdate', await fetchPriceData(symbol, 20));
       const intervalId = setInterval(async () => {
         // const priceData = [{ timestamp:new Date(), symbol, price: Math.random() * 100 }];
         socket.emit('priceUpdate', await fetchPriceData(symbol));
+
+        //interval is set at a time that is slightly more than the data ingestion interval to prevent duplicate data
       }, process.env.DATA_INGESTION_INTERVAL_SECONDS ? parseInt(process.env.DATA_INGESTION_INTERVAL_SECONDS) * 1000 + 5000 : 15000);
       subscriptions[symbol] = intervalId;
     });

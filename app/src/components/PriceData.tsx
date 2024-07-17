@@ -1,5 +1,7 @@
 import React, { use } from 'react';
 import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks';
+import { togglePopup } from '@/reducers/popupSlice';
 
 type PriceData = {
     timestamp: string;
@@ -7,12 +9,18 @@ type PriceData = {
 }[]
 
 const PriceData = (): React.ReactNode => {
+
+    const dispatch = useAppDispatch();
     
     const { priceData, value, updateId }: { priceData: PriceData, value: string , updateId: number} = useAppSelector((state) => state.socket);
     
     return (
         <div className={`price-data updated-${updateId}`}>
-            <h1>{value}</h1>
+            <div className='symbol-info'>
+                <h1>{value}</h1>
+                <button onClick={ () => dispatch(togglePopup())}>Select symbol</button>
+            </div>
+            
             
             <table>
                 <thead>

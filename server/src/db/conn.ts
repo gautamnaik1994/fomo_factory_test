@@ -16,7 +16,6 @@ async function connectToDatabase(): Promise<Db> {
     const conn = await client.connect();
     db = conn.db(process.env.DATABASE_NAME);
     console.log("Connected to the database");
-    
     return db;
   } catch (e) {
     console.error("Failed to connect to the database", e);

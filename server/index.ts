@@ -1,9 +1,6 @@
 import express, { Request, Response } from 'express';
 import { Server } from "socket.io";
 import { createServer } from "http";
-
-
-
 import dotenv from "dotenv";
 dotenv.config();
 import { startPriceDataIngestion } from './src/data_ingestion/priceData';
@@ -11,11 +8,16 @@ import { connectToDatabase, initializeCollections } from './src/db/conn';
 import handleSocketConnection from './src/socket_server/io';
 import price from './src/routes/price';
 
-connectToDatabase().then(() => {
-  initializeCollections();
-}).catch(console.error);
+(async () => {
+  try {
+    await connectToDatabase();
+    await initializeCollections();
+    startPriceDataIngestion();
+  } catch (error) {
+    console.error(error);
+  }
+})();
 
-startPriceDataIngestion();
 
 const app = express();
 const httpServer = createServer(app);

@@ -48,7 +48,6 @@ async function getCoinData() {
         // console.log(timeSeriesArray);
         stockPriceCollection?.insertMany(timeSeriesArray);
         console.log('Data ingested');
-
     }
     catch (e) { 
         console.error("Failed to fetch coin data", e);
@@ -56,16 +55,13 @@ async function getCoinData() {
     }
     
 }
-
+//Following function runs at specific interval and fetches the coin data from the API and ingests it into the database
 function startPriceDataIngestion() {
     const ingestionRateSec = process.env.DATA_INGESTION_INTERVAL_SECONDS || 60;
-    getCoinData();
+    getCoinData(); //Initial call to fetch data to avoid waiting for the first interval
     cron.schedule(`*/${ingestionRateSec} * * * * *`, async () => {
         getCoinData();
     });
 }
-
-
-
 
 export { startPriceDataIngestion };
