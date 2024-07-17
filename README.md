@@ -77,6 +77,10 @@ Used for sending data to frontend apps in real time.
 NextJS along with Socket IO client and Redux was used. Upon launching the app, the socket is connected and price events are subscribed to.  
 Note that I could not save the redux store into local storage because of syncing-related issue with real-time data.
 
+## Video
+
+[![video](http://img.youtube.com/vi/wlO8saqj_J8/0.jpg)](http://www.youtube.com/watch?v=wlO8saqj_J8 "App Working Video")
+
 ## Screenshots
 
 ![s1](./screenshots/s1.png)
