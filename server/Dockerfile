@@ -7,7 +7,6 @@ COPY ./package-lock.json ./
 RUN npm install
 
 COPY ./src ./src
-COPY ./.env ./
 COPY ./index.ts ./
 
 CMD ["npm", "start"]
