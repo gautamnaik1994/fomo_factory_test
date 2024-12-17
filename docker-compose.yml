@@ -8,6 +8,12 @@ services:
       - mongo_db:/data/db
     ports:
       - 27017:27017
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    restart: always
+    ports:
+      - 6379:6379
   server:
     build: ./server/.
     ports:
@@ -18,8 +24,10 @@ services:
       DATABASE_NAME: ${DATABASE_NAME}
       COIN_API_KEY: ${COIN_API_KEY}
       DATA_INGESTION_INTERVAL_SECONDS: ${DATA_INGESTION_INTERVAL_SECONDS}
+      REDIS_URL: ${REDIS_URL}
     depends_on:
       - mongo_db
+      - redis
   web:
     build: ./app/.
     ports:

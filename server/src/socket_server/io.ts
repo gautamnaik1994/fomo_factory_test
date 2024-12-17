@@ -1,11 +1,24 @@
 import { Server, Socket } from "socket.io";
 import { stockPriceCollection } from "../db/conn";
+import {client as redisClient} from '../redis/index';
 
 interface Subscriptions {
   [key: string]: NodeJS.Timeout;
 }
 
 async function fetchPriceData(symbol: string, limit = 1) {
+
+  const cachedData = await redisClient.get(
+    `priceData:${symbol}:${limit}`
+  );
+
+  if (cachedData) {
+    const _data= JSON.parse(cachedData);
+    console.log(`Price data fetched successfully from cache for ${symbol}: ${JSON.stringify(_data)}`);
+    return _data;
+  }
+
+
   //following query fetches the latest price data for the given symbol
   const priceData = await stockPriceCollection?.aggregate([
     {
@@ -30,6 +43,14 @@ async function fetchPriceData(symbol: string, limit = 1) {
       }
     }
   ]).toArray();
+
+  if (priceData) {
+    await redisClient.set(
+      `priceData:${symbol}:${limit}`,
+      JSON.stringify(priceData),
+      {"EX":process.env.DATA_INGESTION_INTERVAL_SECONDS ? parseInt(process.env.DATA_INGESTION_INTERVAL_SECONDS) + 5000 : 15}
+    );
+  }
 
   if (!priceData) {
     console.log(`No price data found for ${symbol}.Check if database is connected. Returning null`);

@@ -7,6 +7,7 @@ This app showcases how to use multiple containers in a single application. The a
 - **Frontend** - A NextJS app that displays the live data.
 - **Backend** - A NodeJS app that fetches live data from the api and saves it in MongoDB.
 - **Database** - A MongoDB database that stores the live data.
+- **Cache** - A Redis cache that stores the live data for faster access.
 
 The frontend app uses SocketIO to receive real-time data from the backend app. The backend app fetches live data from the api every few seconds and saves it in the MongoDB database.
 
@@ -14,7 +15,7 @@ All the containers are orchestrated using Docker Compose. Refer to the [docker-c
 
 ## Architecture
 
-![Architecture Diagram](./architecture.png)
+![Architecture Diagram](./architecture.svg)
 
 ### Database
 
@@ -37,6 +38,10 @@ I used node-cron to schedule a data fetching job. It fetches live data from [Liv
 **SocketIO**
 
 Used for sending data to frontend apps in real time.
+
+**Redis**
+
+Used as a cache to store the live data. This is used to reduce the load on the database.
 
 ### Frontend
 

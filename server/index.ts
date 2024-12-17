@@ -5,11 +5,13 @@ import dotenv from "dotenv";
 dotenv.config();
 import { startPriceDataIngestion } from './src/data_ingestion/priceData';
 import { connectToDatabase, initializeCollections } from './src/db/conn';
+import {connectRedis} from './src/redis/index';
 import handleSocketConnection from './src/socket_server/io';
 import price from './src/routes/price';
 
 (async () => {
   try {
+    await connectRedis();
     await connectToDatabase();
     await initializeCollections();
     startPriceDataIngestion();
