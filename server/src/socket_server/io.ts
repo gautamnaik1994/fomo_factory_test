@@ -14,7 +14,7 @@ async function fetchPriceData(symbol: string, limit = 1) {
 
   if (cachedData) {
     const _data= JSON.parse(cachedData);
-    console.log(`Price data fetched successfully from cache for ${symbol}: ${JSON.stringify(_data)}`);
+    console.log(`Price data fetched successfully from cache for ${symbol}`);
     return _data;
   }
 
@@ -57,7 +57,7 @@ async function fetchPriceData(symbol: string, limit = 1) {
     return null
   }
 
-  console.log(`Emitting price update for ${symbol} :  ${JSON.stringify(priceData)}`);
+  console.log(`Emitting price update for ${symbol}`);
   return priceData;
 }
 
